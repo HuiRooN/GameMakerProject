@@ -80,7 +80,7 @@ MonoBehaviour:
   enemyType: 0
   maxHp: 50
   curHp: 50
-  target: {fileID: 0}
+  target: {fileID: 2731016225036733829, guid: d9a033d711e21d5419c967e4b38a6d3c, type: 3}
   meleeArea: {fileID: 4580520028063160682}
   bullet: {fileID: 0}
   isChase: 0

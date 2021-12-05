@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
 
     public int ammo;
     public int hp;
+    public int coin;
 
     public int maxAmmo;
     public int maxHp;
@@ -24,7 +25,7 @@ public class Player : MonoBehaviour
 
     float hAxis;
     float vAxis;
-    float dodgeCooltime;
+    public float dodgeCooltime;
     
     bool isDodge;
     bool isSwap;
@@ -50,7 +51,7 @@ public class Player : MonoBehaviour
     MeshRenderer[] meshes;
 
     GameObject nearObject;
-    Weapon equipWeapon;
+    public Weapon equipWeapon;
     int equipWeaponIndex;
     float attackDelay;
 
@@ -80,6 +81,11 @@ public class Player : MonoBehaviour
         Reload();
         Interaction();
         Swap();
+
+        //PlayerPrefs.SetInt("SetHP", hp);
+        //PlayerPrefs.SetInt("SetCoin", coin);
+        //PlayerPrefs.SetInt("SetAmmo", ammo);
+        //PlayerPrefs.SetInt("SetGrenade", haveGrenades);
     }
 
     void GetInput()
@@ -224,9 +230,47 @@ public class Player : MonoBehaviour
 
     void ReloadOut()
     {
-        int reAmmo = ammo < equipWeapon.maxAmmo ? ammo : equipWeapon.maxAmmo;
-        equipWeapon.curAmmo = reAmmo;
-        ammo -= reAmmo;
+        int reAmmo;
+        if (ammo <= equipWeapon.maxAmmo)
+        {
+            if (ammo <= 0)
+                return;
+            else if (ammo > 0 && ammo <= equipWeapon.curAmmo)
+            {
+                if((equipWeapon.curAmmo + ammo) <= equipWeapon.maxAmmo)
+                {
+                    equipWeapon.curAmmo = (equipWeapon.curAmmo + ammo);
+                    ammo = 0;
+                }
+                else if ((equipWeapon.curAmmo + ammo) > equipWeapon.maxAmmo)
+                {
+                    reAmmo = (equipWeapon.maxAmmo - equipWeapon.curAmmo);
+                    equipWeapon.curAmmo = equipWeapon.maxAmmo;
+                    ammo -= reAmmo;
+                }
+            }
+            else if (ammo > 0 && ammo > equipWeapon.curAmmo)
+            {
+                if ((equipWeapon.curAmmo + ammo) <= equipWeapon.maxAmmo)
+                {
+                    equipWeapon.curAmmo = (equipWeapon.curAmmo + ammo);
+                    ammo = 0;
+                }
+                else if ((equipWeapon.curAmmo + ammo) > equipWeapon.maxAmmo)
+                {
+                    reAmmo = (equipWeapon.maxAmmo - equipWeapon.curAmmo);
+                    equipWeapon.curAmmo = equipWeapon.maxAmmo;
+                    ammo -= reAmmo;
+                }
+            }
+        }
+
+        else
+        {
+            reAmmo = (equipWeapon.maxAmmo - equipWeapon.curAmmo);
+            equipWeapon.curAmmo = equipWeapon.maxAmmo;
+            ammo -= reAmmo;
+        }
         isReload = false;
     }
    
@@ -318,12 +362,14 @@ public class Player : MonoBehaviour
                     if (hp > maxHp)
                         hp = maxHp;
                     break;
+                case Item.Type.Coin:
+                    coin += item.value;
+                    break;
                 case Item.Type.Grenade:
                     grenades[haveGrenades].SetActive(true);
-                    haveGrenades += item.value;
+                    haveGrenades += 1;
                     if (haveGrenades >= maxHaveGrenades)
                         haveGrenades = maxHaveGrenades;
-                     
                     break;
             }
             Destroy(other.gameObject);

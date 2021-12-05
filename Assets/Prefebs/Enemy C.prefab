@@ -79,7 +79,7 @@ MonoBehaviour:
   enemyType: 2
   maxHp: 200
   curHp: 200
-  target: {fileID: 0}
+  target: {fileID: 2731016225036733829, guid: d9a033d711e21d5419c967e4b38a6d3c, type: 3}
   meleeArea: {fileID: 0}
   bullet: {fileID: 4693803453909110246, guid: 57ba83530ef8a894c9f3da6bd42127aa, type: 3}
   isChase: 0

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{8E4946B7-CBF8-2A87-542D-CDEDC6493359}</ProjectGuid>
+    <ProjectGuid>{D033DFC2-FEAA-F248-DAFE-679E6FBC0127}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -53,13 +53,21 @@
     <UnityVersion>2021.1.7f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio Tools for Unity\16.0\Analyzers\Microsoft.Unity.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Assets\Scripts\Enemy.cs" />
+    <Compile Include="Assets\Scripts\GameManager.cs" />
+    <Compile Include="Assets\Scripts\TutorialManager.cs" />
     <Compile Include="Assets\AurynSky\Forest Pack\Scripts\MaterialMover.cs" />
     <Compile Include="Assets\Scripts\Item.cs" />
     <Compile Include="Assets\Scripts\Bullet.cs" />
+    <Compile Include="Assets\Scripts\Missile.cs" />
+    <Compile Include="Assets\Scripts\TitleManager.cs" />
     <Compile Include="Assets\AurynSky\Dungeon Pack\Scripts\SpikeTrapDemo.cs" />
     <Compile Include="Assets\AurynSky\Forest Pack\Scripts\Rotator.cs" />
     <Compile Include="Assets\Scripts\Grenade.cs" />
+    <Compile Include="Assets\Scripts\TutorialEnemy.cs" />
     <Compile Include="Assets\Scripts\CameraFollow.cs" />
     <Compile Include="Assets\Scripts\Orbit.cs" />
     <Compile Include="Assets\QuarterView 3D Action BE5\ReadMe\Scripts\ReadmeBE5.cs" />
@@ -68,7 +76,6 @@
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\AurynSky\Dungeon Pack\Scripts\TrapDoorDemo.cs" />
     <Compile Include="Assets\Scripts\Weapon.cs" />
-    <Compile Include="Assets\Scripts\Missile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\AurynSky\Dungeon Pack\READ ME.txt" />
