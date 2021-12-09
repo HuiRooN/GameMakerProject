@@ -9,11 +9,11 @@ public class Bullet : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if(!isMelee && other.gameObject.tag == "Wall")
+        if(!isMelee && other.CompareTag("Wall"))
         {
             Destroy(gameObject);
         }
-        else if (other.gameObject.tag == "Floor")
+        else if (other.CompareTag("Floor"))
         {
             Destroy(gameObject);
         }

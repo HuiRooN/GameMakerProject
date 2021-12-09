@@ -27,7 +27,7 @@ public class TutorialEnemy : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "Melee")
+        if (other.CompareTag("Melee"))
         {
             Weapon weapon = other.GetComponent<Weapon>();
             curHp -= weapon.damage;
@@ -37,7 +37,7 @@ public class TutorialEnemy : MonoBehaviour
 
             Debug.Log("Melee : " + curHp);
         }
-        if (other.tag == "Bullet")
+        if (other.CompareTag("Bullet"))
         {
             Bullet bullet = other.GetComponent<Bullet>();
             curHp -= bullet.damage;
@@ -49,13 +49,6 @@ public class TutorialEnemy : MonoBehaviour
 
             Debug.Log("Range : " + curHp);
         }
-    }
-
-    public void HitGrenade(Vector3 explosionPos)
-    {
-        curHp -= 100;
-        Vector3 reactVec = transform.position - explosionPos;
-        StartCoroutine(OnDamage(reactVec, true));
     }
 
     IEnumerator OnDamage(Vector3 reactVec, bool isGrenade)
@@ -83,20 +76,9 @@ public class TutorialEnemy : MonoBehaviour
 
             gameObject.layer = 13;
 
-            if (isGrenade)
-            {
-                reactVec = reactVec.normalized;
-                reactVec += Vector3.up * 3;
-
-                rigid.AddForce(reactVec * 5, ForceMode.Impulse);
-                rigid.AddTorque(reactVec * 15, ForceMode.Impulse);
-            }
-            else
-            {
-                reactVec = reactVec.normalized;
-                reactVec += Vector3.up;
-                rigid.AddForce(reactVec * 5, ForceMode.Impulse);
-            }
+            reactVec = reactVec.normalized;
+            reactVec += Vector3.up;
+            rigid.AddForce(reactVec * 5, ForceMode.Impulse);
 
             Destroy(gameObject, 3);
         }

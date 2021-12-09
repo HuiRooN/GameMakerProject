@@ -13,6 +13,11 @@ TagManager:
   - Enemy
   - EnemyBullet
   - Tutorial2Start
+  - goToNext
+  - StageManager
+  - Stage
+  - ShopStage
+  - BossStage
   layers:
   - Default
   - TransparentFX

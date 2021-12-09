@@ -9,42 +9,24 @@ public class Player : MonoBehaviour
     public GameObject[] weapons;
     public bool[] haveWeapons;
 
-    public GameObject[] grenades;
-    public int haveGrenades;
-    public GameObject grenadeObj;
-
     public Camera followCamera;
+    public GameManager gamemanager;
 
-    public int ammo;
     public int hp;
     public int coin;
 
-    public int maxAmmo;
     public int maxHp;
-    public int maxHaveGrenades;
 
     float hAxis;
     float vAxis;
-    public float dodgeCooltime;
     
-    bool isDodge;
-    bool isSwap;
-    bool isReload;
     bool isAttackReady = true;
     bool isBorder;
     bool isDamage;
 
-    bool dDown;
-    bool iDown;
-    bool sDown1;
-    bool sDown2;
-    bool sDown3;
     bool aDown;
-    bool gDown;
-    bool rDown;
 
     Vector3 moveVec;
-    Vector3 dodgeVec;
 
     Rigidbody rigid;
     Animator anim;
@@ -62,7 +44,6 @@ public class Player : MonoBehaviour
         rigid = GetComponent<Rigidbody>();
         meshes = GetComponentsInChildren<MeshRenderer>();
 
-        dodgeCooltime = 5.0f;
         haveWeapons[0] = true;
         equipWeapon = weapons[0].GetComponent<Weapon>();
         equipWeapon.gameObject.SetActive(true);
@@ -74,13 +55,7 @@ public class Player : MonoBehaviour
         GetInput();
         Move();
         Turn();
-        Dodge();
-        DodgeCooltime();
         Attack();
-        Grenade();
-        Reload();
-        Interaction();
-        Swap();
 
         //PlayerPrefs.SetInt("SetHP", hp);
         //PlayerPrefs.SetInt("SetCoin", coin);
@@ -92,24 +67,14 @@ public class Player : MonoBehaviour
     {
         hAxis = Input.GetAxisRaw("Horizontal");
         vAxis = Input.GetAxisRaw("Vertical");
-        dDown = Input.GetButtonDown("Jump");
         aDown = Input.GetButton("Fire1");
-        gDown = Input.GetButtonDown("Fire2");
-        rDown = Input.GetButtonDown("Reload");
-        iDown = Input.GetButtonDown("Interaction");
-        sDown1 = Input.GetButtonDown("Swap1");
-        sDown2 = Input.GetButtonDown("Swap2");
-        sDown3 = Input.GetButtonDown("Swap3");
     }
 
     void Move()
     {
         moveVec = new Vector3(hAxis, 0, vAxis).normalized;
 
-        if (isDodge)
-            moveVec = dodgeVec;
-
-        if (isSwap || isReload || !isAttackReady)
+        if (!isAttackReady)
             moveVec = Vector3.zero;
 
         if (!isBorder)
@@ -135,196 +100,19 @@ public class Player : MonoBehaviour
         }
     }
 
-    void Dodge()
-    {
-        if(dDown && moveVec != Vector3.zero && dodgeCooltime >= 5.0f && !isSwap)
-        {
-            dodgeVec = moveVec;
-            speed *= 2.0f;
-            anim.SetTrigger("doDodge");
-            isDodge = true;
-
-            Invoke("DodgeOut", 0.5f);
-        }
-    }
-
-    void DodgeOut()
-    {
-        speed *= 0.5f;
-        isDodge = false;
-        dodgeCooltime = 0;
-    }
-
-    void DodgeCooltime()
-    {
-        if (isDodge == false)
-            dodgeCooltime += Time.deltaTime;
-    }
-
     void Attack()
     {
         if (equipWeapon == null)
             return;
 
-        if (equipWeapon.type == Weapon.Type.Range && equipWeapon.curAmmo <= 0)
-            return;
-
         attackDelay += Time.deltaTime;
         isAttackReady = equipWeapon.attackSpeed < attackDelay;
 
-        if(aDown && isAttackReady && !isDodge && !isSwap)
+        if(aDown && isAttackReady)
         {
             equipWeapon.Use();
             anim.SetTrigger(equipWeapon.type == Weapon.Type.Melee ? "doSwing" : "doShot");
             attackDelay = 0;
-        }
-    }
-
-    void Grenade()
-    {
-        if (haveGrenades == 0)
-            return;
-
-        if(gDown && !isReload && !isSwap)
-        {
-            Ray ray = followCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit rayHIt;
-            if (Physics.Raycast(ray, out rayHIt, 100))
-            {
-                Vector3 nextVec = rayHIt.point - transform.position;
-                nextVec.y = 7;
-
-                GameObject instantGrenade = Instantiate(grenadeObj, transform.position, transform.rotation);
-                Rigidbody rigidGrenade = instantGrenade.GetComponent<Rigidbody>();
-                rigidGrenade.AddForce(nextVec, ForceMode.Impulse);
-                rigidGrenade.AddTorque(Vector3.back * 10, ForceMode.Impulse);
-
-                haveGrenades--;
-                grenades[haveGrenades].SetActive(false);
-            }
-        }
-    }
-
-    void Reload()
-    {
-        if (equipWeapon == null)
-            return;
-
-        if (equipWeapon.type == Weapon.Type.Melee)
-            return;
-
-        if (ammo == 0)
-            return;
-
-        if (equipWeapon.curAmmo == equipWeapon.maxAmmo)
-            return;
-
-        if(rDown && !isDodge && !isSwap && isAttackReady)
-        {
-            anim.SetTrigger("doReload");
-            isReload = true;
-
-            Invoke("ReloadOut", 0.5f);
-        }
-    }
-
-    void ReloadOut()
-    {
-        int reAmmo;
-        if (ammo <= equipWeapon.maxAmmo)
-        {
-            if (ammo <= 0)
-                return;
-            else if (ammo > 0 && ammo <= equipWeapon.curAmmo)
-            {
-                if((equipWeapon.curAmmo + ammo) <= equipWeapon.maxAmmo)
-                {
-                    equipWeapon.curAmmo = (equipWeapon.curAmmo + ammo);
-                    ammo = 0;
-                }
-                else if ((equipWeapon.curAmmo + ammo) > equipWeapon.maxAmmo)
-                {
-                    reAmmo = (equipWeapon.maxAmmo - equipWeapon.curAmmo);
-                    equipWeapon.curAmmo = equipWeapon.maxAmmo;
-                    ammo -= reAmmo;
-                }
-            }
-            else if (ammo > 0 && ammo > equipWeapon.curAmmo)
-            {
-                if ((equipWeapon.curAmmo + ammo) <= equipWeapon.maxAmmo)
-                {
-                    equipWeapon.curAmmo = (equipWeapon.curAmmo + ammo);
-                    ammo = 0;
-                }
-                else if ((equipWeapon.curAmmo + ammo) > equipWeapon.maxAmmo)
-                {
-                    reAmmo = (equipWeapon.maxAmmo - equipWeapon.curAmmo);
-                    equipWeapon.curAmmo = equipWeapon.maxAmmo;
-                    ammo -= reAmmo;
-                }
-            }
-        }
-
-        else
-        {
-            reAmmo = (equipWeapon.maxAmmo - equipWeapon.curAmmo);
-            equipWeapon.curAmmo = equipWeapon.maxAmmo;
-            ammo -= reAmmo;
-        }
-        isReload = false;
-    }
-   
-    void Swap()
-    {
-        if (sDown1 && (!haveWeapons[0] || equipWeaponIndex == 0))
-            return;
-        if (sDown2 && (!haveWeapons[1] || equipWeaponIndex == 1))
-            return;
-        if (sDown3 && (!haveWeapons[2] || equipWeaponIndex == 2))
-            return;
-
-        int weaponIndex = 0;
-        if (sDown1)
-            weaponIndex = 0;
-        if (sDown2)
-            weaponIndex = 1;
-        if (sDown3)
-            weaponIndex = 2;
-
-        if ((sDown1 || sDown2 || sDown3) && !isDodge)
-        {
-            if(equipWeapon != null)
-                equipWeapon.gameObject.SetActive(false);
-
-            equipWeaponIndex = weaponIndex;
-            equipWeapon = weapons[weaponIndex].GetComponent<Weapon>();
-            equipWeapon.gameObject.SetActive(true);
-
-            anim.SetTrigger("doSwap");
-
-            isSwap = true;
-
-            Invoke("SwapOut", 0.5f);
-        }
-    }
-
-    void SwapOut()
-    {
-        isSwap = false;
-    }
-    
-    void Interaction()
-    {
-        if(iDown && nearObject != null && !isDodge)
-        {
-            if(nearObject.tag == "Weapon")
-            {
-                Item item = nearObject.GetComponent<Item>();
-                int weaponIndex = item.value;
-                haveWeapons[weaponIndex] = true;
-
-                Destroy(nearObject);
-            }
         }
     }
 
@@ -347,16 +135,11 @@ public class Player : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "Item")
+        if(other.CompareTag("Item"))
         {
             Item item = other.GetComponent<Item>();
             switch(item.type)
             {
-                case Item.Type.Ammo:
-                    ammo += item.value;
-                    if (ammo > maxAmmo)
-                        ammo = maxAmmo;
-                    break;
                 case Item.Type.HP:
                     hp += item.value;
                     if (hp > maxHp)
@@ -365,26 +148,25 @@ public class Player : MonoBehaviour
                 case Item.Type.Coin:
                     coin += item.value;
                     break;
-                case Item.Type.Grenade:
-                    grenades[haveGrenades].SetActive(true);
-                    haveGrenades += 1;
-                    if (haveGrenades >= maxHaveGrenades)
-                        haveGrenades = maxHaveGrenades;
-                    break;
             }
             Destroy(other.gameObject);
         }
-        else if(other.tag == "EnemyBullet")
+        else if(other.CompareTag("EnemyBullet"))
         {
             if (!isDamage)
             {
                 Bullet enemyBullet = other.GetComponent<Bullet>();
                 hp -= enemyBullet.damage;
+                anim.SetTrigger("doDamage");
                 if (other.GetComponent<Rigidbody>() != null)
                     Destroy(other.gameObject);
 
                 StartCoroutine(OnDamage());
             }
+        }
+        else if(other.CompareTag("goToNext"))
+        {
+            StageManager.Instance.NextStage();
         }
     }
 
@@ -409,13 +191,19 @@ public class Player : MonoBehaviour
     
     void OnTriggerStay(Collider other)
     {
-        if (other.tag == "Weapon")
+        if (other.CompareTag("Weapon"))
             nearObject = other.gameObject;
+        if (other.CompareTag("ShopStage"))
+            gamemanager.ShopPanel.SetActive(true);
+        if (other.CompareTag("Stage") || other.CompareTag("BossStage"))
+            gamemanager.ShopPanel.SetActive(false);
     }
 
     void OnTriggerExit(Collider other)
     {
-        if (other.tag == "Weapon")
+        if (other.CompareTag("Weapon"))
             nearObject = null;
+        if (other.CompareTag("ShopStage"))
+            gamemanager.ShopPanel.SetActive(true);
     }
 }

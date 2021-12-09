@@ -115,12 +115,12 @@ public class Enemy : MonoBehaviour
                 rigid.velocity = Vector3.zero;
                 meleeArea.enabled = false;
 
-                yield return new WaitForSeconds(2f);
+                yield return new WaitForSeconds(5f);
 
                 break;
             case Type.Range:
                 yield return new WaitForSeconds(0.5f);
-                GameObject instantBullet = Instantiate(bullet, new Vector3(transform.position.x, transform.position.y + 1, transform.position.z), transform.rotation);
+                GameObject instantBullet = Instantiate(bullet, new Vector3(transform.position.x, transform.position.y + 2, transform.position.z), transform.rotation);
                 Rigidbody rigidBullet = instantBullet.GetComponent<Rigidbody>();
                 rigidBullet.velocity = transform.forward * 20;
 
@@ -141,7 +141,7 @@ public class Enemy : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "Melee")
+        if(other.CompareTag("Melee"))
         {
             Weapon weapon = other.GetComponent<Weapon>();
             curHp -= weapon.damage;
@@ -151,7 +151,7 @@ public class Enemy : MonoBehaviour
 
             Debug.Log("Melee : " + curHp);
         }
-        if(other.tag == "Bullet")
+        if(other.CompareTag("Bullet"))
         {
             Bullet bullet = other.GetComponent<Bullet>();
             curHp -= bullet.damage;
@@ -164,14 +164,6 @@ public class Enemy : MonoBehaviour
             Debug.Log("Range : " + curHp);
         }
     }
-
-    public void HitGrenade(Vector3 explosionPos)
-    {
-        curHp -= 100;
-        Vector3 reactVec = transform.position - explosionPos;
-        StartCoroutine(OnDamage(reactVec, true));
-    }
-
 
     IEnumerator OnDamage(Vector3 reactVec, bool isGrenade)
     {
@@ -199,24 +191,15 @@ public class Enemy : MonoBehaviour
             gameObject.layer = 13;
             isChase = false;
             nav.enabled = false;
-            meleeArea.enabled = false;
+            if(enemyType == Type.Melee || enemyType == Type.Speed)
+            {
+                meleeArea.enabled = false;
+            }
             anim.SetTrigger("doDie");
 
-            if (isGrenade)
-            {
-                reactVec = reactVec.normalized;
-                reactVec += Vector3.up * 3;
-
-                rigid.freezeRotation = false;
-                rigid.AddForce(reactVec * 5, ForceMode.Impulse);
-                rigid.AddTorque(reactVec * 15, ForceMode.Impulse);
-            }
-            else
-            {
-                reactVec = reactVec.normalized;
-                reactVec += Vector3.up;
-                rigid.AddForce(reactVec * 5, ForceMode.Impulse);
-            }
+            reactVec = reactVec.normalized;
+            reactVec += Vector3.up;
+            rigid.AddForce(reactVec * 5, ForceMode.Impulse);
 
             Destroy(gameObject, 3);
         }
