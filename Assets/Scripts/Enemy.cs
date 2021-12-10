@@ -5,7 +5,7 @@ using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour
 {
-    public enum Type { Melee, Speed, Range};
+    public enum Type { Melee, Speed, Range, Stage1Boss};
     public Type enemyType;
 
     public int maxHp;
@@ -13,15 +13,19 @@ public class Enemy : MonoBehaviour
     public Transform target;
     public BoxCollider meleeArea;
     public GameObject bullet;
+    public GameObject Coin;
+    public GameObject Health;
+
 
     public bool isChase;
     public bool isAttack;
+    public bool isDead;
     
-    Rigidbody rigid;
-    BoxCollider boxCollider;
-    MeshRenderer[] meshes;
-    NavMeshAgent nav;
-    Animator anim;
+    public Rigidbody rigid;
+    public BoxCollider boxCollider;
+    public MeshRenderer[] meshes;
+    public NavMeshAgent nav;
+    public Animator anim;
 
     void Awake()
     {
@@ -31,7 +35,8 @@ public class Enemy : MonoBehaviour
         nav = GetComponent<NavMeshAgent>();
         anim = GetComponentInChildren<Animator>();
 
-        Invoke("ChaseStart", 2);
+        if(enemyType != Type.Stage1Boss)
+            Invoke("ChaseStart", 2);
     }
 
     void ChaseStart()
@@ -43,7 +48,7 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        if(nav.enabled)
+        if(nav.enabled && enemyType != Type.Stage1Boss)
         {
             nav.SetDestination(target.position);
             nav.isStopped = !isChase;
@@ -61,31 +66,34 @@ public class Enemy : MonoBehaviour
 
     void Targeting()
     {
-        float targetRadius = 0;
-        float targetRange = 0f;
-
-        switch (enemyType)
+        if(!isDead && enemyType != Type.Stage1Boss)
         {
-            case Type.Melee:
-                targetRadius = 0.9f;
-                targetRange = 1.0f;
-                break;
-            case Type.Speed:
-                targetRadius = 0.7f;
-                targetRange = 8.0f;
-                break;
-            case Type.Range:
-                targetRadius = 0.3f;
-                targetRange = 15.0f;
-                break;
-        }
+            float targetRadius = 0;
+            float targetRange = 0f;
 
-        RaycastHit[] rayHits = Physics.SphereCastAll(transform.position, targetRadius, transform.forward, targetRange, LayerMask.GetMask("Player"));
+            switch (enemyType)
+            {
+                case Type.Melee:
+                    targetRadius = 0.9f;
+                    targetRange = 1.0f;
+                    break;
+                case Type.Speed:
+                    targetRadius = 0.7f;
+                    targetRange = 8.0f;
+                    break;
+                case Type.Range:
+                    targetRadius = 0.3f;
+                    targetRange = 15.0f;
+                    break;
+            }
 
-        if(rayHits.Length > 0 && !isAttack)
-        {
-            StartCoroutine(Attack());
-        }
+            RaycastHit[] rayHits = Physics.SphereCastAll(transform.position, targetRadius, transform.forward, targetRange, LayerMask.GetMask("Player"));
+
+            if (rayHits.Length > 0 && !isAttack)
+            {
+                StartCoroutine(Attack());
+            }
+        }  
     }
 
     IEnumerator Attack()
@@ -181,7 +189,7 @@ public class Enemy : MonoBehaviour
                 mesh.material.color = Color.white;
             }
         }
-        else
+        else if(curHp <= 0)
         {
             foreach (MeshRenderer mesh in meshes)
             {
@@ -189,6 +197,7 @@ public class Enemy : MonoBehaviour
             }
 
             gameObject.layer = 13;
+            isDead = true;
             isChase = false;
             nav.enabled = false;
             if(enemyType == Type.Melee || enemyType == Type.Speed)
@@ -197,11 +206,23 @@ public class Enemy : MonoBehaviour
             }
             anim.SetTrigger("doDie");
 
+            GameObject.FindWithTag("Player").GetComponent<Player>().killEnemy++;
+
+            int ranCoin = Random.Range(0, 1);
+            if (ranCoin == 0)
+                Instantiate(Coin, transform.position, Quaternion.identity);
+
+            int ranHp = Random.Range(0, 4);
+            if (ranHp == 0)
+                Instantiate(Health, transform.position, Quaternion.identity);
+
             reactVec = reactVec.normalized;
             reactVec += Vector3.up;
             rigid.AddForce(reactVec * 5, ForceMode.Impulse);
 
-            Destroy(gameObject, 3);
+            if(enemyType != Type.Stage1Boss)
+                Destroy(gameObject, 1);
+            
         }
     }
 }

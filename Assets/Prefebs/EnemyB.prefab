@@ -794,7 +794,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2993650521494139353}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_Children:
@@ -802,7 +802,7 @@ Transform:
   - {fileID: 6399690445272352028}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &2993650521494139357
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -845,11 +845,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyType: 1
-  maxHp: 100
+  maxHp: 80
   curHp: 100
-  target: {fileID: 1611442111407513819, guid: d9a033d711e21d5419c967e4b38a6d3c, type: 3}
+  target: {fileID: 0}
   meleeArea: {fileID: 6399690445272352026}
   bullet: {fileID: 0}
+  Coin: {fileID: 8303243075637986958, guid: 014552e21ae6f694fa6535be684105a9, type: 3}
+  Health: {fileID: 8024998505109068385, guid: 780fdbfb6e6eb9549bbd72e198378cbb, type: 3}
   isChase: 0
   isAttack: 0
 --- !u!195 &2993650521494139354

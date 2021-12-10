@@ -18,6 +18,7 @@ TagManager:
   - Stage
   - ShopStage
   - BossStage
+  - Boss
   layers:
   - Default
   - TransparentFX

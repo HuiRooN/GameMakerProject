@@ -57,34 +57,26 @@ public class StageManager : MonoBehaviour
 
     public void NextStage()
     {
-        currentStage++;
+        currentStage += 1;
 
         if(currentStage == LastStage)
         {
-            return;
+            Player.transform.position = StartPositionLastBoss.position;
         }
 
-        if(currentStage % 5 != 0)
+        if (currentStage % 5 != 0)
         {
             int arrayIndex = currentStage / 10;
             int randomIndex = Random.Range(0, startPositionArrays[arrayIndex].StartPosition.Count);
             Player.transform.position = startPositionArrays[arrayIndex].StartPosition[randomIndex].position;
             startPositionArrays[arrayIndex].StartPosition.RemoveAt(randomIndex);
         }
-
         else
         {
             if (currentStage % 10 == 5)
             {
                 int randomIndex = Random.Range(0, StartPositionStore.Count);
                 Player.transform.position = StartPositionStore[randomIndex].position;
-            }
-            else
-            {
-                if (currentStage == LastStage)
-                {
-                    Player.transform.position = StartPositionLastBoss.position;
-                }
             }
         }
     }

@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -12,10 +14,14 @@ public class Player : MonoBehaviour
     public Camera followCamera;
     public GameManager gamemanager;
 
+    public GameObject FailPanel;
+
     public int hp;
     public int coin;
 
     public int maxHp;
+
+    public int killEnemy;
 
     float hAxis;
     float vAxis;
@@ -25,6 +31,7 @@ public class Player : MonoBehaviour
     bool isDamage;
 
     bool aDown;
+    bool iDown;
 
     Vector3 moveVec;
 
@@ -49,6 +56,11 @@ public class Player : MonoBehaviour
         equipWeapon.gameObject.SetActive(true);
     }
 
+    void Start()
+    {
+        killEnemy = 0;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -56,6 +68,11 @@ public class Player : MonoBehaviour
         Move();
         Turn();
         Attack();
+
+        if(iDown)
+        {
+            StageManager.Instance.currentStage = 9;
+        }
 
         //PlayerPrefs.SetInt("SetHP", hp);
         //PlayerPrefs.SetInt("SetCoin", coin);
@@ -68,6 +85,7 @@ public class Player : MonoBehaviour
         hAxis = Input.GetAxisRaw("Horizontal");
         vAxis = Input.GetAxisRaw("Vertical");
         aDown = Input.GetButton("Fire1");
+        iDown = Input.GetButton("Interaction");
     }
 
     void Move()
@@ -161,12 +179,16 @@ public class Player : MonoBehaviour
                 if (other.GetComponent<Rigidbody>() != null)
                     Destroy(other.gameObject);
 
+                if (hp <= 0)
+                    GameOver();
+
                 StartCoroutine(OnDamage());
             }
         }
         else if(other.CompareTag("goToNext"))
         {
             StageManager.Instance.NextStage();
+            killEnemy = 0;
         }
     }
 
@@ -189,12 +211,21 @@ public class Player : MonoBehaviour
 
     }
     
+    void GameOver()
+    {
+        Time.timeScale = 0;
+        FailPanel.SetActive(true);
+    }
+
     void OnTriggerStay(Collider other)
     {
         if (other.CompareTag("Weapon"))
             nearObject = other.gameObject;
         if (other.CompareTag("ShopStage"))
+        {
             gamemanager.ShopPanel.SetActive(true);
+            GameObject.FindWithTag("ShopStage").GetComponent<Stage>().Nextstage.SetActive(true);
+        }
         if (other.CompareTag("Stage") || other.CompareTag("BossStage"))
             gamemanager.ShopPanel.SetActive(false);
     }

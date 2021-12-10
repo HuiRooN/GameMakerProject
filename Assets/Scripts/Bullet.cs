@@ -6,6 +6,7 @@ public class Bullet : MonoBehaviour
 {
     public int damage;
     public bool isMelee;
+    public bool isBigfireball;
 
     void OnTriggerEnter(Collider other)
     {
@@ -13,7 +14,7 @@ public class Bullet : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        else if (other.CompareTag("Floor"))
+        else if (!isBigfireball && other.CompareTag("Floor"))
         {
             Destroy(gameObject);
         }

@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
 
     public GameObject GamePanel;
     public GameObject ShopPanel;
+    public GameObject FailPanel;
 
     public Text stageTxt;
     public Text playerHPTxt;
@@ -26,10 +27,13 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        //player.hp = PlayerPrefs.GetInt("SetHP");
-        //player.coin = PlayerPrefs.GetInt("SetCoin");
-        //player.ammo = PlayerPrefs.GetInt("SetAmmo");
-        //player.haveGrenades = PlayerPrefs.GetInt("SetGrenade");
+
+    }
+
+    void Start()
+    {
+        Time.timeScale = 1;
+        FailPanel.SetActive(false);
     }
 
     void LateUpdate()
@@ -38,6 +42,27 @@ public class GameManager : MonoBehaviour
         playerCoinTxt.text = string.Format("{0:n0}", player.coin);
         stageTxt.text =SceneManager.GetActiveScene().name + "-" + StageManager.Instance.currentStage;
 
-        //bossHP.localScale = new Vector3(boss.curHP / boss.maxHP, 1, 1);
+        if(GameObject.FindWithTag("BossStage").GetComponent<BossStage>().bossInStage)
+        {
+            bossHPGroup.anchoredPosition = Vector3.left * 114;
+            bossHPGroup.anchoredPosition = Vector3.down * 20;
+            bossHP.localScale = new Vector3((float)GameObject.FindWithTag("Boss").GetComponent<Boss>().curHp / GameObject.FindWithTag("Boss").GetComponent<Boss>().maxHp, 1, 1);
+        }
+        else
+        {
+            bossHPGroup.anchoredPosition = Vector3.left * 114;
+            bossHPGroup.anchoredPosition = Vector3.up * 200;
+        }
+        
+    }
+
+    public void TitleButton()
+    {
+        SceneManager.LoadScene("TitleScene");
+    }
+
+    public void RestartButton()
+    {
+        SceneManager.LoadScene("Stage1");
     }
 }
